@@ -1,0 +1,746 @@
+[
+  {
+    "id": "incident-1",
+    "record": {
+      "title": "Newline word count",
+      "summary": "Milestone 2 historical recovery: real Duo test and fix in one session; role isolation and approval were not enforced.",
+      "status": "PASS",
+      "issue_url": "https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/work_items/1",
+      "mr_url": "https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/merge_requests/2",
+      "source_sha": "f102740905110beb0dc56d738a98d13a22c74643",
+      "evidence_job": {
+        "id": 17264661466,
+        "url": "https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/jobs/17264661466"
+      },
+      "scan_jobs": [
+        {
+          "name": "semgrep-sast",
+          "job_id": 17264661460,
+          "url": "https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/jobs/17264661460",
+          "execution": "success",
+          "findings": {
+            "Critical": 0,
+            "High": 0,
+            "Medium": 5,
+            "Low": 0,
+            "Info": 0,
+            "Unknown": 0
+          }
+        },
+        {
+          "name": "secret_detection",
+          "job_id": 17264661461,
+          "url": "https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/jobs/17264661461",
+          "execution": "success",
+          "findings": {
+            "Critical": 0,
+            "High": 0,
+            "Medium": 0,
+            "Low": 0,
+            "Info": 0,
+            "Unknown": 0
+          }
+        },
+        {
+          "name": "gemnasium-dependency_scanning",
+          "job_id": 17264661462,
+          "url": "https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/jobs/17264661462",
+          "execution": "success",
+          "findings": {
+            "Critical": 0,
+            "High": 0,
+            "Medium": 0,
+            "Low": 0,
+            "Info": 0,
+            "Unknown": 0
+          }
+        }
+      ],
+      "sessions": [
+        {
+          "id": 9650206,
+          "role": "combined (role isolation not enforced)",
+          "url": "https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/automate/agent-sessions/9650206",
+          "status": "finished",
+          "observed_tools": [
+            "run_command"
+          ]
+        }
+      ],
+      "metrics": {
+        "incident_created_at": "2026-10-18T11:49:01.429Z",
+        "verified_fix_at": "2026-10-18T11:57:49.774Z",
+        "wall_clock_seconds": 528.345,
+        "duo_sessions": 1,
+        "pipeline_minutes": 17.226,
+        "human_touches": null,
+        "human_touches_display": "Historical count unavailable",
+        "owner_authorized_approval_signals": 0,
+        "credit_usage": null,
+        "credit_reason": "Per-session credit consumption was not exposed by the queried API; no estimate."
+      },
+      "scope": "recovery-ci; release_authorized=false",
+      "record_evaluated_at": "2026-10-18T11:57:47.539Z",
+      "tap_note": "Committed TAP replaces ephemeral isolated-worktree roots. Original TAP remains in linked CI artifacts.",
+      "approval": {
+        "label": "Not enforced in milestone 2",
+        "protected": false
+      }
+    },
+    "evidence": {
+      "schema_version": 2,
+      "scope": "recovery-ci",
+      "policy_sha": "4b6b23b1ac07b71d83bf1a84487cc36e75685fe1",
+      "source_sha": "f102740905110beb0dc56d738a98d13a22c74643",
+      "base_sha": "e261337cf98000132f9155a9d548eb426782dcb6",
+      "pipeline": {
+        "id": 2960188148,
+        "job_id": 17264661466,
+        "source_sha": "f102740905110beb0dc56d738a98d13a22c74643",
+        "url": "https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/pipelines/2960188148"
+      },
+      "pinned_test": {
+        "path": "test/recovery/multiline-word-count.test.js",
+        "sha256": "0b3e89ada7d44029a3b7da0ccb2dab0f255ff75b0363ef1c24c9f66d1dce6eb9"
+      },
+      "red": {
+        "result": "fail",
+        "source_sha": "e261337cf98000132f9155a9d548eb426782dcb6",
+        "test_path": "test/recovery/multiline-word-count.test.js",
+        "test_sha256": "0b3e89ada7d44029a3b7da0ccb2dab0f255ff75b0363ef1c24c9f66d1dce6eb9",
+        "executed_at": "2026-10-18T11:57:47.375Z",
+        "pipeline_id": 2960188148,
+        "job_id": 17264661466
+      },
+      "green": {
+        "result": "pass",
+        "source_sha": "f102740905110beb0dc56d738a98d13a22c74643",
+        "test_path": "test/recovery/multiline-word-count.test.js",
+        "test_sha256": "0b3e89ada7d44029a3b7da0ccb2dab0f255ff75b0363ef1c24c9f66d1dce6eb9",
+        "executed_at": "2026-10-18T11:57:47.478Z",
+        "pipeline_id": 2960188148,
+        "job_id": 17264661466
+      },
+      "scan": {
+        "status": "pass",
+        "high": 0,
+        "critical": 0,
+        "scanners": [
+          {
+            "name": "sast",
+            "execution": "success",
+            "policy": "pass",
+            "required": true,
+            "high": 0,
+            "critical": 0
+          },
+          {
+            "name": "secret_detection",
+            "execution": "success",
+            "policy": "pass",
+            "required": true,
+            "high": 0,
+            "critical": 0
+          },
+          {
+            "name": "dependency_scanning",
+            "execution": "success",
+            "policy": "pass",
+            "required": true,
+            "high": 0,
+            "critical": 0
+          }
+        ],
+        "source_sha": "f102740905110beb0dc56d738a98d13a22c74643",
+        "pipeline_id": 2960188148,
+        "job_id": 17264661466,
+        "completed_at": "2026-10-18T11:57:47.539Z"
+      },
+      "duo": {
+        "session_id": "9650206",
+        "url": "https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/automate/agent-sessions/9650206"
+      },
+      "created_at": "2026-10-18T11:57:47.539Z"
+    },
+    "verdict": {
+      "status": "PASS",
+      "scope": "recovery-ci",
+      "release_authorized": false,
+      "errors": []
+    },
+    "scan": {
+      "status": "pass",
+      "high": 0,
+      "critical": 0,
+      "scanners": [
+        {
+          "name": "sast",
+          "execution": "success",
+          "policy": "pass",
+          "required": true,
+          "high": 0,
+          "critical": 0
+        },
+        {
+          "name": "secret_detection",
+          "execution": "success",
+          "policy": "pass",
+          "required": true,
+          "high": 0,
+          "critical": 0
+        },
+        {
+          "name": "dependency_scanning",
+          "execution": "success",
+          "policy": "pass",
+          "required": true,
+          "high": 0,
+          "critical": 0
+        }
+      ]
+    }
+  },
+  {
+    "id": "incident-2",
+    "record": {
+      "title": "Bare-CR Markdown preview",
+      "summary": "Separate read-only Duo sessions; first test proposal rejected for hanging input. A High controller SSRF finding blocked the first MR; fixed-host API hardening cleared it without suppressions. Source proposal unchanged.",
+      "status": "PASS",
+      "issue_url": "https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/work_items/2",
+      "mr_url": "https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/merge_requests/4",
+      "source_sha": "21ac29c8ecc68488b3e8f1f8cf111117fc6c73ad",
+      "evidence_job": {
+        "id": 17264839628,
+        "url": "https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/jobs/17264839628"
+      },
+      "scan_jobs": [
+        {
+          "name": "semgrep-sast",
+          "job_id": 17264839619,
+          "url": "https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/jobs/17264839619",
+          "execution": "success",
+          "findings": {
+            "Critical": 0,
+            "High": 0,
+            "Medium": 6,
+            "Low": 0,
+            "Info": 0,
+            "Unknown": 0
+          }
+        },
+        {
+          "name": "secret_detection",
+          "job_id": 17264839620,
+          "url": "https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/jobs/17264839620",
+          "execution": "success",
+          "findings": {
+            "Critical": 0,
+            "High": 0,
+            "Medium": 0,
+            "Low": 0,
+            "Info": 0,
+            "Unknown": 0
+          }
+        },
+        {
+          "name": "gemnasium-dependency_scanning",
+          "job_id": 17264839621,
+          "url": "https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/jobs/17264839621",
+          "execution": "success",
+          "findings": {
+            "Critical": 0,
+            "High": 0,
+            "Medium": 0,
+            "Low": 0,
+            "Info": 0,
+            "Unknown": 0
+          }
+        }
+      ],
+      "sessions": [
+        {
+          "id": 9650371,
+          "role": "reproduce (rejected: local hang)",
+          "url": "https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/automate/agent-sessions/9650371",
+          "catalog_version_id": 1035253,
+          "requested_tools": [
+            "read_file",
+            "list_dir"
+          ],
+          "api_privilege_flags": [
+            "read_write_files",
+            "read_only_gitlab",
+            "read_write_gitlab",
+            "run_commands",
+            "use_git",
+            "run_mcp_tools",
+            "start_flows"
+          ],
+          "status": "finished",
+          "observed_tools": [
+            "list_dir",
+            "read_file"
+          ]
+        },
+        {
+          "id": 9650402,
+          "role": "reproduce",
+          "url": "https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/automate/agent-sessions/9650402",
+          "catalog_version_id": 1035253,
+          "requested_tools": [
+            "read_file",
+            "list_dir"
+          ],
+          "api_privilege_flags": [
+            "read_write_files",
+            "read_only_gitlab",
+            "read_write_gitlab",
+            "run_commands",
+            "use_git",
+            "run_mcp_tools",
+            "start_flows"
+          ],
+          "status": "finished",
+          "observed_tools": [
+            "list_dir",
+            "read_file"
+          ]
+        },
+        {
+          "id": 9650434,
+          "role": "fix",
+          "url": "https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/automate/agent-sessions/9650434",
+          "catalog_version_id": 1035256,
+          "requested_tools": [
+            "read_file",
+            "list_dir"
+          ],
+          "api_privilege_flags": [
+            "read_write_files",
+            "read_only_gitlab",
+            "read_write_gitlab",
+            "run_commands",
+            "use_git",
+            "run_mcp_tools",
+            "start_flows"
+          ],
+          "status": "finished",
+          "observed_tools": []
+        }
+      ],
+      "metrics": {
+        "incident_created_at": "2026-10-18T12:08:44.181Z",
+        "verified_fix_at": "2026-10-18T12:22:55.336Z",
+        "wall_clock_seconds": 851.155,
+        "duo_sessions": 3,
+        "pipeline_minutes": 29.044,
+        "human_touches": 0,
+        "human_touches_display": "0 fresh human clicks; 1 owner-authorized API approval",
+        "owner_authorized_approval_signals": 1,
+        "credit_usage": null,
+        "credit_reason": "Per-session credit consumption was not exposed by the queried API; no estimate."
+      },
+      "scope": "recovery-ci; release_authorized=false",
+      "record_evaluated_at": "2026-10-18T12:20:38.932Z",
+      "tap_note": "Committed TAP replaces ephemeral isolated-worktree roots. Original TAP remains in linked CI artifacts.",
+      "approval": {
+        "label": "Owner-authorized approval via API (Developer project role; not a fresh human click)",
+        "job_id": 17264839629,
+        "url": "https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/jobs/17264839629",
+        "source_sha": "21ac29c8ecc68488b3e8f1f8cf111117fc6c73ad",
+        "started_at": "2026-10-18T12:23:02.864Z",
+        "finished_at": "2026-10-18T12:23:18.517Z",
+        "merged_at": "2026-10-18T12:23:30.937Z",
+        "protected": false,
+        "controller_merge_check": true
+      },
+      "red_pipeline_url": "https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/pipelines/2960217030",
+      "policy_sha": "13e0005ac7db62c3145ac7b7459afd4fd828119b",
+      "test_commit": "2a684c2265ee867eacb13952a0391115a3fa962e",
+      "tamper_pipeline_url": "https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/pipelines/2960220512",
+      "blocked_attempts": [
+        {
+          "mr": "https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/merge_requests/3",
+          "pipeline": "https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/pipelines/2960220191",
+          "reason": "One High SSRF finding in the controller; unmerged. Remediated with a fixed host and route allowlist."
+        }
+      ],
+      "merge_metadata_note": "The GitLab API-generated merge commit used account-default author metadata and an MR-IID-based message. It recovers issue 2 via MR 4. No history was rewritten. Subsequent controller merges use a normal fast-forward push."
+    },
+    "evidence": {
+      "schema_version": 2,
+      "scope": "recovery-ci",
+      "policy_sha": "13e0005ac7db62c3145ac7b7459afd4fd828119b",
+      "source_sha": "21ac29c8ecc68488b3e8f1f8cf111117fc6c73ad",
+      "base_sha": "3adb109e86943bf0834ba5c32c22d64b691e6409",
+      "pipeline": {
+        "id": 2960222882,
+        "job_id": 17264839628,
+        "source_sha": "21ac29c8ecc68488b3e8f1f8cf111117fc6c73ad",
+        "url": "https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/pipelines/2960222882"
+      },
+      "pinned_test": {
+        "path": "test/recovery/bare-cr-preview.test.js",
+        "sha256": "0583ae90575e02b42057e5d93dcad992b55e52231b803c456786a2516e200b29"
+      },
+      "red": {
+        "result": "fail",
+        "source_sha": "3adb109e86943bf0834ba5c32c22d64b691e6409",
+        "test_path": "test/recovery/bare-cr-preview.test.js",
+        "test_sha256": "0583ae90575e02b42057e5d93dcad992b55e52231b803c456786a2516e200b29",
+        "executed_at": "2026-10-18T12:20:38.763Z",
+        "pipeline_id": 2960222882,
+        "job_id": 17264839628
+      },
+      "green": {
+        "result": "pass",
+        "source_sha": "21ac29c8ecc68488b3e8f1f8cf111117fc6c73ad",
+        "test_path": "test/recovery/bare-cr-preview.test.js",
+        "test_sha256": "0583ae90575e02b42057e5d93dcad992b55e52231b803c456786a2516e200b29",
+        "executed_at": "2026-10-18T12:20:38.870Z",
+        "pipeline_id": 2960222882,
+        "job_id": 17264839628
+      },
+      "scan": {
+        "status": "pass",
+        "high": 0,
+        "critical": 0,
+        "scanners": [
+          {
+            "name": "sast",
+            "execution": "success",
+            "policy": "pass",
+            "required": true,
+            "high": 0,
+            "critical": 0
+          },
+          {
+            "name": "secret_detection",
+            "execution": "success",
+            "policy": "pass",
+            "required": true,
+            "high": 0,
+            "critical": 0
+          },
+          {
+            "name": "dependency_scanning",
+            "execution": "success",
+            "policy": "pass",
+            "required": true,
+            "high": 0,
+            "critical": 0
+          }
+        ],
+        "source_sha": "21ac29c8ecc68488b3e8f1f8cf111117fc6c73ad",
+        "pipeline_id": 2960222882,
+        "job_id": 17264839628,
+        "completed_at": "2026-10-18T12:20:38.932Z"
+      },
+      "duo": {
+        "session_id": "9650402",
+        "url": "https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/automate/agent-sessions/9650402"
+      },
+      "created_at": "2026-10-18T12:20:38.932Z"
+    },
+    "verdict": {
+      "status": "PASS",
+      "scope": "recovery-ci",
+      "release_authorized": false,
+      "errors": []
+    },
+    "scan": {
+      "status": "pass",
+      "high": 0,
+      "critical": 0,
+      "scanners": [
+        {
+          "name": "sast",
+          "execution": "success",
+          "policy": "pass",
+          "required": true,
+          "high": 0,
+          "critical": 0
+        },
+        {
+          "name": "secret_detection",
+          "execution": "success",
+          "policy": "pass",
+          "required": true,
+          "high": 0,
+          "critical": 0
+        },
+        {
+          "name": "dependency_scanning",
+          "execution": "success",
+          "policy": "pass",
+          "required": true,
+          "high": 0,
+          "critical": 0
+        }
+      ]
+    }
+  },
+  {
+    "id": "incident-3",
+    "record": {
+      "title": "Lossless Markdown export",
+      "summary": "Separate read-only Duo reproduction and fix proposals; original Markdown whitespace and Unicode must survive export unchanged.",
+      "status": "PASS",
+      "issue_url": "https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/work_items/3",
+      "mr_url": "https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/merge_requests/5",
+      "source_sha": "44d562377bff699a66c6d75dab16030aec46b5a2",
+      "evidence_job": {
+        "id": 17264903669,
+        "url": "https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/jobs/17264903669"
+      },
+      "scan_jobs": [
+        {
+          "name": "semgrep-sast",
+          "job_id": 17264903660,
+          "url": "https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/jobs/17264903660",
+          "execution": "success",
+          "findings": {
+            "Critical": 0,
+            "High": 0,
+            "Medium": 6,
+            "Low": 0,
+            "Info": 0,
+            "Unknown": 0
+          }
+        },
+        {
+          "name": "secret_detection",
+          "job_id": 17264903661,
+          "url": "https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/jobs/17264903661",
+          "execution": "success",
+          "findings": {
+            "Critical": 0,
+            "High": 0,
+            "Medium": 0,
+            "Low": 0,
+            "Info": 0,
+            "Unknown": 0
+          }
+        },
+        {
+          "name": "gemnasium-dependency_scanning",
+          "job_id": 17264903662,
+          "url": "https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/jobs/17264903662",
+          "execution": "success",
+          "findings": {
+            "Critical": 0,
+            "High": 0,
+            "Medium": 0,
+            "Low": 0,
+            "Info": 0,
+            "Unknown": 0
+          }
+        }
+      ],
+      "sessions": [
+        {
+          "id": 9650572,
+          "role": "reproduce",
+          "url": "https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/automate/agent-sessions/9650572",
+          "catalog_version_id": 1035253,
+          "requested_tools": [
+            "read_file",
+            "list_dir"
+          ],
+          "api_privilege_flags": [
+            "read_write_files",
+            "read_only_gitlab",
+            "read_write_gitlab",
+            "run_commands",
+            "use_git",
+            "run_mcp_tools",
+            "start_flows"
+          ],
+          "status": "finished",
+          "observed_tools": [
+            "list_dir",
+            "read_file"
+          ]
+        },
+        {
+          "id": 9650610,
+          "role": "fix",
+          "url": "https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/automate/agent-sessions/9650610",
+          "catalog_version_id": 1035256,
+          "requested_tools": [
+            "read_file",
+            "list_dir"
+          ],
+          "api_privilege_flags": [
+            "read_write_files",
+            "read_only_gitlab",
+            "read_write_gitlab",
+            "run_commands",
+            "use_git",
+            "run_mcp_tools",
+            "start_flows"
+          ],
+          "status": "finished",
+          "observed_tools": []
+        }
+      ],
+      "metrics": {
+        "incident_created_at": "2026-10-18T12:24:12.222Z",
+        "verified_fix_at": "2026-10-18T12:30:33.708Z",
+        "wall_clock_seconds": 381.486,
+        "duo_sessions": 2,
+        "pipeline_minutes": 12.636,
+        "human_touches": 0,
+        "human_touches_display": "0 fresh human clicks; 1 owner-authorized API approval",
+        "owner_authorized_approval_signals": 1,
+        "credit_usage": null,
+        "credit_reason": "Per-session credit consumption was not exposed by the queried API; no estimate."
+      },
+      "scope": "recovery-ci; release_authorized=false",
+      "record_evaluated_at": "2026-10-18T12:30:31.418Z",
+      "tap_note": "Committed TAP replaces ephemeral isolated-worktree roots. Original TAP remains in linked CI artifacts.",
+      "approval": {
+        "label": "Owner-authorized approval via API (Developer project role; not a fresh human click)",
+        "job_id": 17264903670,
+        "url": "https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/jobs/17264903670",
+        "source_sha": "44d562377bff699a66c6d75dab16030aec46b5a2",
+        "started_at": "2026-10-18T12:33:19.707Z",
+        "finished_at": "2026-10-18T12:33:35.306Z",
+        "merged_at": "2026-10-18T12:34:04.225Z",
+        "protected": false,
+        "controller_merge_check": true
+      },
+      "red_pipeline_url": "https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/pipelines/2960231938",
+      "policy_sha": "87b4ce90f1838dc9cd0b6062bd1c428cd0f60661",
+      "test_commit": "1f9a5f607b5bad3873def584afb8a28968c4f15f",
+      "boundary_checks": [
+        {
+          "kind": "ci",
+          "url": "https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/pipelines/2960235835",
+          "job_url": "https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/jobs/17264914604",
+          "expected_status": "failed",
+          "reason": "Role path violation"
+        },
+        {
+          "kind": "test",
+          "url": "https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/pipelines/2960235861",
+          "job_url": "https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/jobs/17264914928",
+          "expected_status": "failed",
+          "reason": "Role path violation"
+        }
+      ]
+    },
+    "evidence": {
+      "schema_version": 2,
+      "scope": "recovery-ci",
+      "policy_sha": "87b4ce90f1838dc9cd0b6062bd1c428cd0f60661",
+      "source_sha": "44d562377bff699a66c6d75dab16030aec46b5a2",
+      "base_sha": "a935170755da6e1ae50d532ff0886e14ef659413",
+      "pipeline": {
+        "id": 2960233931,
+        "job_id": 17264903669,
+        "source_sha": "44d562377bff699a66c6d75dab16030aec46b5a2",
+        "url": "https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/pipelines/2960233931"
+      },
+      "pinned_test": {
+        "path": "test/recovery/lossless-markdown-export.test.js",
+        "sha256": "9e2bd41760b90e8822188d8f4128063d262c80567296c9b38dd14ab41fc6076b"
+      },
+      "red": {
+        "result": "fail",
+        "source_sha": "a935170755da6e1ae50d532ff0886e14ef659413",
+        "test_path": "test/recovery/lossless-markdown-export.test.js",
+        "test_sha256": "9e2bd41760b90e8822188d8f4128063d262c80567296c9b38dd14ab41fc6076b",
+        "executed_at": "2026-10-18T12:30:31.243Z",
+        "pipeline_id": 2960233931,
+        "job_id": 17264903669
+      },
+      "green": {
+        "result": "pass",
+        "source_sha": "44d562377bff699a66c6d75dab16030aec46b5a2",
+        "test_path": "test/recovery/lossless-markdown-export.test.js",
+        "test_sha256": "9e2bd41760b90e8822188d8f4128063d262c80567296c9b38dd14ab41fc6076b",
+        "executed_at": "2026-10-18T12:30:31.356Z",
+        "pipeline_id": 2960233931,
+        "job_id": 17264903669
+      },
+      "scan": {
+        "status": "pass",
+        "high": 0,
+        "critical": 0,
+        "scanners": [
+          {
+            "name": "sast",
+            "execution": "success",
+            "policy": "pass",
+            "required": true,
+            "high": 0,
+            "critical": 0
+          },
+          {
+            "name": "secret_detection",
+            "execution": "success",
+            "policy": "pass",
+            "required": true,
+            "high": 0,
+            "critical": 0
+          },
+          {
+            "name": "dependency_scanning",
+            "execution": "success",
+            "policy": "pass",
+            "required": true,
+            "high": 0,
+            "critical": 0
+          }
+        ],
+        "source_sha": "44d562377bff699a66c6d75dab16030aec46b5a2",
+        "pipeline_id": 2960233931,
+        "job_id": 17264903669,
+        "completed_at": "2026-10-18T12:30:31.418Z"
+      },
+      "duo": {
+        "session_id": "9650572",
+        "url": "https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/automate/agent-sessions/9650572"
+      },
+      "created_at": "2026-10-18T12:30:31.418Z"
+    },
+    "verdict": {
+      "status": "PASS",
+      "scope": "recovery-ci",
+      "release_authorized": false,
+      "errors": []
+    },
+    "scan": {
+      "status": "pass",
+      "high": 0,
+      "critical": 0,
+      "scanners": [
+        {
+          "name": "sast",
+          "execution": "success",
+          "policy": "pass",
+          "required": true,
+          "high": 0,
+          "critical": 0
+        },
+        {
+          "name": "secret_detection",
+          "execution": "success",
+          "policy": "pass",
+          "required": true,
+          "high": 0,
+          "critical": 0
+        },
+        {
+          "name": "dependency_scanning",
+          "execution": "success",
+          "policy": "pass",
+          "required": true,
+          "high": 0,
+          "critical": 0
+        }
+      ]
+    }
+  }
+]

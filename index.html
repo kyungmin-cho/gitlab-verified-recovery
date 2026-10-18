@@ -1,0 +1,471 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1280">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'">
+<title>Verified Recovery · Evidence ledger</title>
+<style>
+:root{
+  --bg:#efeeeb;--ink:#1c1d1f;--text:#3d4045;--muted:#696c72;--faint:#909297;--rule:#dcdad4;--rule2:#e6e4df;--panel:#fbfaf7;
+  --z-head:#f7f3eb;--z-list:#efeeeb;--z-panel:#e5e3de;--z-hover:#f5f4f1;
+  --pass:#1f6b3b;--pass-bg:#e9f2ec;--block:#b3261e;--block-bg:#fbeeec;
+  --serif:"IBM Plex Serif","Source Serif Pro",Georgia,serif;
+  --sans:"IBM Plex Sans",Inter,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:"IBM Plex Mono","JetBrains Mono",Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--z-head);color:var(--text);font:13px/1.5 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:var(--ink);text-decoration:underline;text-decoration-color:var(--faint);text-underline-offset:2px}
+a:hover{text-decoration-color:var(--ink)}
+.nolink{color:var(--muted)}
+.zone{width:100%}
+.z-head{background:var(--z-head);border-bottom:1px solid #e6e1d6}
+.z-list{background:var(--z-list);padding:30px 0 44px}
+.z-notes{background:var(--z-head);border-top:1px solid #e6e1d6;padding:28px 0 52px}
+.page{width:1280px;margin:0 auto;padding:0 80px}
+:focus-visible{outline:2px solid var(--ink);outline-offset:2px;border-radius:3px}
+
+/* L1 */
+.l1{padding:52px 0 40px}
+.kicker{font:600 11px/1 var(--sans);letter-spacing:2px;text-transform:uppercase;color:var(--muted)}
+.verdict{font:500 35px/1.24 var(--serif);color:var(--ink);letter-spacing:-.5px;margin:16px 0 0;max-width:1080px;text-wrap:balance}
+.verdict .ok{color:var(--pass)}
+.verdict .no{color:var(--block)}
+.keys{display:grid;grid-template-columns:repeat(4,1fr);gap:40px;margin-top:40px}
+.key .n{font:500 52px/1 var(--serif);color:var(--ink);letter-spacing:-1px}
+.key .n small{font-size:24px;color:var(--faint);letter-spacing:0}
+.key.ok .n{color:var(--pass)}
+.key.no .n{color:var(--block)}
+.key .t{font:600 14px/1.3 var(--sans);color:var(--ink);margin-top:10px}
+.key .d{font-size:12.5px;color:var(--muted);margin-top:4px;line-height:1.45}
+.meta{margin-top:36px;font-size:12px;color:var(--muted);display:flex;gap:28px}
+.meta b{font-weight:500;color:var(--text)}
+.meta sup{line-height:0}
+
+/* L2 */
+.l2head{display:flex;align-items:baseline;gap:16px}
+.l2head h2{font:600 11px/1 var(--sans);letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin:0}
+.l2head .tools{margin-left:auto;display:flex;gap:4px}
+.tbtn{font:500 12px var(--sans);color:var(--muted);background:none;border:0;padding:4px 8px;border-radius:4px;cursor:pointer}
+.tbtn:hover{color:var(--ink);background:var(--rule2)}
+.grid{display:grid;grid-template-columns:28px 56px minmax(0,1fr) 100px 248px 136px 104px;align-items:center;column-gap:12px}
+.cols{margin-top:14px;padding:0 0 8px;font:600 10.5px/1 var(--sans);letter-spacing:1px;text-transform:uppercase;color:var(--faint)}
+.cols .r{text-align:right}
+.rec{border-top:1px solid var(--rule)}
+.rec:last-of-type{border-bottom:1px solid var(--rule)}
+.row{padding:16px 0;cursor:pointer}
+.row:hover{background:var(--z-hover)}
+.rec.open>.row{background:transparent}
+.tog{width:24px;height:24px;border:0;background:none;padding:0;cursor:pointer;color:var(--muted);display:flex;align-items:center;justify-content:center;border-radius:4px}
+.tog svg{width:14px;height:14px;transition:transform .15s}
+.rec.open .tog svg{transform:rotate(90deg)}
+.ref{font:500 12px var(--mono);color:var(--muted)}
+.name{font:600 16px/1.3 var(--serif);color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.name a{text-decoration:none}
+.name a:hover{text-decoration:underline}
+.stamp{display:inline-block;font:700 11px/1 var(--sans);letter-spacing:1.6px;padding:5px 8px 4px;border:1.5px solid currentColor;border-radius:2px}
+.stamp.PASS{color:var(--pass)}
+.stamp.BLOCK,.stamp.FAIL,.stamp.INCOMPLETE{color:var(--block)}
+.ctl{font-size:12.5px;color:var(--text);line-height:1.4}
+.ctl .m{color:var(--muted)}
+.rej{text-align:right;font-size:13px;color:var(--muted);white-space:nowrap}
+.rej .real{color:var(--block);font-weight:600}
+.rej .delib{color:var(--muted)}
+.dur{text-align:right;font:500 15px/1.2 var(--serif);color:var(--ink)}
+sup.fn{font:600 10px var(--sans);color:var(--muted);margin-left:1px}
+
+/* L3 */
+.l3{display:grid;grid-template-columns:minmax(0,1fr) 352px;gap:36px;padding:20px 24px 22px 28px;margin:0 0 18px 40px;background:var(--z-panel);border-radius:8px;
+  --muted:#5f6268;--faint:#7e8086;--rule2:#d6d3cd}
+.l3[hidden]{display:none}
+.sub{font:600 10.5px/1 var(--sans);letter-spacing:1.4px;text-transform:uppercase;color:var(--faint);margin:0 0 10px}
+.chain{list-style:none;margin:0;padding:0}
+.step{display:grid;grid-template-columns:14px 62px minmax(0,1fr) auto;column-gap:12px;padding:9px 0;border-top:1px solid var(--rule2)}
+.step:first-child{border-top:0}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--faint);margin-top:6px}
+.step.ok .dot{background:var(--pass)}
+.step.bad .dot{background:var(--block)}
+.when{font:12px/1.6 var(--mono);color:var(--muted)}
+.cp{font-weight:600;color:var(--ink);font-size:13px}
+.step.bad .cp{color:var(--block)}
+.ev{color:var(--muted);font-size:12.5px;margin-top:1px}
+.refs{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:5px}
+.res{font:600 10.5px/1.6 var(--sans);letter-spacing:1px;text-transform:uppercase;color:var(--muted);white-space:nowrap;text-align:right;padding-top:1px}
+.res.ok{color:var(--pass)}
+.res.bad{color:var(--block)}
+aside .blk{margin-bottom:22px}
+.kv{display:grid;grid-template-columns:118px 1fr;gap:6px 12px;margin:0;font-size:12.5px;align-items:center}
+.kv dt{color:var(--muted)}
+.kv dd{margin:0;min-width:0}
+.kv dd.nm{color:var(--faint);font-style:italic}
+.path{font:12px var(--mono);color:var(--text);overflow-wrap:anywhere}
+.same{color:var(--pass);font-size:12px}
+table.scan{border-collapse:collapse;width:100%;font-size:12.5px}
+table.scan th{font:600 10.5px/1 var(--sans);letter-spacing:.8px;text-transform:uppercase;color:var(--faint);text-align:right;padding:0 0 7px 6px}
+table.scan th:first-child{text-align:left;padding-left:0}
+table.scan td{padding:5px 0 5px 6px;border-top:1px solid var(--rule2);text-align:right;font-variant-numeric:tabular-nums}
+table.scan th:last-child{padding-right:22px}
+table.scan td:first-child{text-align:left;padding-left:0;color:var(--text);white-space:nowrap}
+table.scan td.z{color:var(--faint)}
+table.scan td.hot{color:var(--block);font-weight:600}
+
+/* chips */
+.idref{display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
+.idref .kind{color:var(--muted);font-size:12px}
+.chip{font:500 12px/1 var(--mono);color:var(--ink);background:var(--panel);border:1px solid #d3d0c9;border-radius:4px;padding:3px 6px;cursor:copy;transition:background .12s,border-color .12s}
+.chip:hover{background:#fff;border-color:#bdb9b0}
+.lk:hover{background:rgba(255,255,255,.6)}
+.chip.copied{background:var(--pass-bg);border-color:#b9d6c3;color:var(--pass)}
+.lk{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:3px;color:var(--faint);text-decoration:none}
+.lk:hover{color:var(--ink);background:var(--rule2)}
+.lk svg{width:12px;height:12px}
+.toast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,12px);background:var(--ink);color:#fff;font:500 12.5px var(--sans);padding:8px 14px;border-radius:6px;opacity:0;pointer-events:none;transition:opacity .15s,transform .15s;box-shadow:0 6px 20px rgba(0,0,0,.15)}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.toast code{font:12px var(--mono);color:#cfe9d8;margin-left:6px}
+
+/* notes */
+.notes{margin-top:40px;display:grid;grid-template-columns:1fr 1fr;gap:8px 48px;font-size:12px;color:var(--muted);line-height:1.55}
+.notes p{margin:0}
+.notes b{color:var(--text);font-weight:600}
+.notes sup{font-weight:600;color:var(--text)}
+
+@media print{
+  @page{size:A4 landscape;margin:12mm}
+  html,body{background:#fff}
+  .page{width:auto;padding:0}
+  .zone,.l3{background:#fff!important;border:0!important;padding-top:0}
+  .z-list,.z-notes{padding:12px 0 0}
+  .l3{border-left:2px solid #ddd!important;border-radius:0;margin-left:20px}
+  .l1{padding-top:0}
+  .tools,.lk,.toast{display:none!important}
+  .tog{visibility:hidden}
+  .l3[hidden]{display:grid}
+  .row:hover{background:none}
+  .chip{background:none;border:0;padding:0;font-size:10.5px;text-align:left}
+  .chip .s{display:none}
+  .chip::after{content:attr(data-full);overflow-wrap:anywhere}
+  .idref{white-space:normal}
+  .l1{padding-bottom:24px}
+  .verdict{font-size:26px;max-width:none}
+  .keys{margin-top:22px;gap:24px}
+  .key .n{font-size:36px}
+  .meta{margin-top:18px}
+  .grid{grid-template-columns:0 44px minmax(0,1fr) 72px 230px 84px 90px;column-gap:10px}
+  .name{white-space:normal;font-size:14px}
+  .row{padding:10px 0;break-after:avoid}
+  .l3{grid-template-columns:minmax(0,1fr) 350px;gap:24px;padding:4px 0 18px 54px}
+  table.scan td,table.scan th{padding-left:6px}
+  table.scan td:last-child .chip::after{white-space:nowrap}
+  .step,.kv,table.scan tr{break-inside:avoid}
+  .notes{break-inside:avoid;margin-top:24px}
+  a{text-decoration:none}
+}
+</style>
+</head>
+<body>
+<header class="zone z-head"><div class="page">
+  <section class="l1" aria-label="Verdict">
+    <div class="kicker">Verified Recovery · Evidence ledger</div>
+    <h1 class="verdict" id="verdict"></h1>
+    <div class="keys" id="keys"></div>
+    <div class="meta" id="meta"></div>
+  </section>
+</div></header>
+
+<main class="zone z-list"><div class="page">
+  <section aria-label="Recovery records">
+    <div class="l2head"><h2>Recovery records</h2>
+      <div class="tools"><button class="tbtn" id="ex" type="button">Expand all</button><button class="tbtn" id="co" type="button">Collapse all</button><button class="tbtn" id="pr" type="button">Print</button></div>
+    </div>
+    <div class="grid cols" aria-hidden="true"><span></span><span>Ref</span><span>Incident</span><span>Verdict</span><span>Roles · approval</span><span class="r">Stopped</span><span class="r">Incident → fix</span></div>
+    <div id="records"></div>
+  </section>
+</div></main>
+
+<footer class="zone z-notes"><div class="page">
+  <div class="notes" id="notes" style="margin-top:0"></div>
+</div></footer>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script>
+const RAW_ROWS = [{"id":"incident-1","record":{"title":"Newline word count","summary":"Milestone 2 historical recovery: real Duo test and fix in one session; role isolation and approval were not enforced.","status":"PASS","issue_url":"https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/work_items/1","mr_url":"https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/merge_requests/2","source_sha":"f102740905110beb0dc56d738a98d13a22c74643","evidence_job":{"id":17264661466,"url":"https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/jobs/17264661466"},"scan_jobs":[{"name":"semgrep-sast","job_id":17264661460,"url":"https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/jobs/17264661460","execution":"success","findings":{"Critical":0,"High":0,"Medium":5,"Low":0,"Info":0,"Unknown":0}},{"name":"secret_detection","job_id":17264661461,"url":"https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/jobs/17264661461","execution":"success","findings":{"Critical":0,"High":0,"Medium":0,"Low":0,"Info":0,"Unknown":0}},{"name":"gemnasium-dependency_scanning","job_id":17264661462,"url":"https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/jobs/17264661462","execution":"success","findings":{"Critical":0,"High":0,"Medium":0,"Low":0,"Info":0,"Unknown":0}}],"sessions":[{"id":9650206,"role":"combined (role isolation not enforced)","url":"https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/automate/agent-sessions/9650206","status":"finished","observed_tools":["run_command"]}],"metrics":{"incident_created_at":"2026-10-18T11:49:01.429Z","verified_fix_at":"2026-10-18T11:57:49.774Z","wall_clock_seconds":528.345,"duo_sessions":1,"pipeline_minutes":17.226,"human_touches":null,"human_touches_display":"Historical count unavailable","owner_authorized_approval_signals":0,"credit_usage":null,"credit_reason":"Per-session credit consumption was not exposed by the queried API; no estimate."},"scope":"recovery-ci; release_authorized=false","record_evaluated_at":"2026-10-18T11:57:47.539Z","tap_note":"Committed TAP replaces ephemeral isolated-worktree roots. Original TAP remains in linked CI artifacts.","approval":{"label":"Not enforced in milestone 2","protected":false}},"evidence":{"schema_version":2,"scope":"recovery-ci","policy_sha":"4b6b23b1ac07b71d83bf1a84487cc36e75685fe1","source_sha":"f102740905110beb0dc56d738a98d13a22c74643","base_sha":"e261337cf98000132f9155a9d548eb426782dcb6","pipeline":{"id":2960188148,"job_id":17264661466,"source_sha":"f102740905110beb0dc56d738a98d13a22c74643","url":"https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/pipelines/2960188148"},"pinned_test":{"path":"test/recovery/multiline-word-count.test.js","sha256":"0b3e89ada7d44029a3b7da0ccb2dab0f255ff75b0363ef1c24c9f66d1dce6eb9"},"red":{"result":"fail","source_sha":"e261337cf98000132f9155a9d548eb426782dcb6","test_path":"test/recovery/multiline-word-count.test.js","test_sha256":"0b3e89ada7d44029a3b7da0ccb2dab0f255ff75b0363ef1c24c9f66d1dce6eb9","executed_at":"2026-10-18T11:57:47.375Z","pipeline_id":2960188148,"job_id":17264661466},"green":{"result":"pass","source_sha":"f102740905110beb0dc56d738a98d13a22c74643","test_path":"test/recovery/multiline-word-count.test.js","test_sha256":"0b3e89ada7d44029a3b7da0ccb2dab0f255ff75b0363ef1c24c9f66d1dce6eb9","executed_at":"2026-10-18T11:57:47.478Z","pipeline_id":2960188148,"job_id":17264661466},"scan":{"status":"pass","high":0,"critical":0,"scanners":[{"name":"sast","execution":"success","policy":"pass","required":true,"high":0,"critical":0},{"name":"secret_detection","execution":"success","policy":"pass","required":true,"high":0,"critical":0},{"name":"dependency_scanning","execution":"success","policy":"pass","required":true,"high":0,"critical":0}],"source_sha":"f102740905110beb0dc56d738a98d13a22c74643","pipeline_id":2960188148,"job_id":17264661466,"completed_at":"2026-10-18T11:57:47.539Z"},"duo":{"session_id":"9650206","url":"https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/automate/agent-sessions/9650206"},"created_at":"2026-10-18T11:57:47.539Z"},"verdict":{"status":"PASS","scope":"recovery-ci","release_authorized":false,"errors":[]},"scan":{"status":"pass","high":0,"critical":0,"scanners":[{"name":"sast","execution":"success","policy":"pass","required":true,"high":0,"critical":0},{"name":"secret_detection","execution":"success","policy":"pass","required":true,"high":0,"critical":0},{"name":"dependency_scanning","execution":"success","policy":"pass","required":true,"high":0,"critical":0}]}},{"id":"incident-2","record":{"title":"Bare-CR Markdown preview","summary":"Separate read-only Duo sessions; first test proposal rejected for hanging input. A High controller SSRF finding blocked the first MR; fixed-host API hardening cleared it without suppressions. Source proposal unchanged.","status":"PASS","issue_url":"https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/work_items/2","mr_url":"https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/merge_requests/4","source_sha":"21ac29c8ecc68488b3e8f1f8cf111117fc6c73ad","evidence_job":{"id":17264839628,"url":"https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/jobs/17264839628"},"scan_jobs":[{"name":"semgrep-sast","job_id":17264839619,"url":"https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/jobs/17264839619","execution":"success","findings":{"Critical":0,"High":0,"Medium":6,"Low":0,"Info":0,"Unknown":0}},{"name":"secret_detection","job_id":17264839620,"url":"https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/jobs/17264839620","execution":"success","findings":{"Critical":0,"High":0,"Medium":0,"Low":0,"Info":0,"Unknown":0}},{"name":"gemnasium-dependency_scanning","job_id":17264839621,"url":"https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/jobs/17264839621","execution":"success","findings":{"Critical":0,"High":0,"Medium":0,"Low":0,"Info":0,"Unknown":0}}],"sessions":[{"id":9650371,"role":"reproduce (rejected: local hang)","url":"https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/automate/agent-sessions/9650371","catalog_version_id":1035253,"requested_tools":["read_file","list_dir"],"api_privilege_flags":["read_write_files","read_only_gitlab","read_write_gitlab","run_commands","use_git","run_mcp_tools","start_flows"],"status":"finished","observed_tools":["list_dir","read_file"]},{"id":9650402,"role":"reproduce","url":"https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/automate/agent-sessions/9650402","catalog_version_id":1035253,"requested_tools":["read_file","list_dir"],"api_privilege_flags":["read_write_files","read_only_gitlab","read_write_gitlab","run_commands","use_git","run_mcp_tools","start_flows"],"status":"finished","observed_tools":["list_dir","read_file"]},{"id":9650434,"role":"fix","url":"https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/automate/agent-sessions/9650434","catalog_version_id":1035256,"requested_tools":["read_file","list_dir"],"api_privilege_flags":["read_write_files","read_only_gitlab","read_write_gitlab","run_commands","use_git","run_mcp_tools","start_flows"],"status":"finished","observed_tools":[]}],"metrics":{"incident_created_at":"2026-10-18T12:08:44.181Z","verified_fix_at":"2026-10-18T12:22:55.336Z","wall_clock_seconds":851.155,"duo_sessions":3,"pipeline_minutes":29.044,"human_touches":0,"human_touches_display":"0 fresh human clicks; 1 owner-authorized API approval","owner_authorized_approval_signals":1,"credit_usage":null,"credit_reason":"Per-session credit consumption was not exposed by the queried API; no estimate."},"scope":"recovery-ci; release_authorized=false","record_evaluated_at":"2026-10-18T12:20:38.932Z","tap_note":"Committed TAP replaces ephemeral isolated-worktree roots. Original TAP remains in linked CI artifacts.","approval":{"label":"Owner-authorized approval via API (Developer project role; not a fresh human click)","job_id":17264839629,"url":"https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/jobs/17264839629","source_sha":"21ac29c8ecc68488b3e8f1f8cf111117fc6c73ad","started_at":"2026-10-18T12:23:02.864Z","finished_at":"2026-10-18T12:23:18.517Z","merged_at":"2026-10-18T12:23:30.937Z","protected":false,"controller_merge_check":true},"red_pipeline_url":"https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/pipelines/2960217030","policy_sha":"13e0005ac7db62c3145ac7b7459afd4fd828119b","test_commit":"2a684c2265ee867eacb13952a0391115a3fa962e","tamper_pipeline_url":"https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/pipelines/2960220512","blocked_attempts":[{"mr":"https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/merge_requests/3","pipeline":"https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/pipelines/2960220191","reason":"One High SSRF finding in the controller; unmerged. Remediated with a fixed host and route allowlist."}],"merge_metadata_note":"The GitLab API-generated merge commit used account-default author metadata and an MR-IID-based message. It recovers issue 2 via MR 4. No history was rewritten. Subsequent controller merges use a normal fast-forward push."},"evidence":{"schema_version":2,"scope":"recovery-ci","policy_sha":"13e0005ac7db62c3145ac7b7459afd4fd828119b","source_sha":"21ac29c8ecc68488b3e8f1f8cf111117fc6c73ad","base_sha":"3adb109e86943bf0834ba5c32c22d64b691e6409","pipeline":{"id":2960222882,"job_id":17264839628,"source_sha":"21ac29c8ecc68488b3e8f1f8cf111117fc6c73ad","url":"https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/pipelines/2960222882"},"pinned_test":{"path":"test/recovery/bare-cr-preview.test.js","sha256":"0583ae90575e02b42057e5d93dcad992b55e52231b803c456786a2516e200b29"},"red":{"result":"fail","source_sha":"3adb109e86943bf0834ba5c32c22d64b691e6409","test_path":"test/recovery/bare-cr-preview.test.js","test_sha256":"0583ae90575e02b42057e5d93dcad992b55e52231b803c456786a2516e200b29","executed_at":"2026-10-18T12:20:38.763Z","pipeline_id":2960222882,"job_id":17264839628},"green":{"result":"pass","source_sha":"21ac29c8ecc68488b3e8f1f8cf111117fc6c73ad","test_path":"test/recovery/bare-cr-preview.test.js","test_sha256":"0583ae90575e02b42057e5d93dcad992b55e52231b803c456786a2516e200b29","executed_at":"2026-10-18T12:20:38.870Z","pipeline_id":2960222882,"job_id":17264839628},"scan":{"status":"pass","high":0,"critical":0,"scanners":[{"name":"sast","execution":"success","policy":"pass","required":true,"high":0,"critical":0},{"name":"secret_detection","execution":"success","policy":"pass","required":true,"high":0,"critical":0},{"name":"dependency_scanning","execution":"success","policy":"pass","required":true,"high":0,"critical":0}],"source_sha":"21ac29c8ecc68488b3e8f1f8cf111117fc6c73ad","pipeline_id":2960222882,"job_id":17264839628,"completed_at":"2026-10-18T12:20:38.932Z"},"duo":{"session_id":"9650402","url":"https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/automate/agent-sessions/9650402"},"created_at":"2026-10-18T12:20:38.932Z"},"verdict":{"status":"PASS","scope":"recovery-ci","release_authorized":false,"errors":[]},"scan":{"status":"pass","high":0,"critical":0,"scanners":[{"name":"sast","execution":"success","policy":"pass","required":true,"high":0,"critical":0},{"name":"secret_detection","execution":"success","policy":"pass","required":true,"high":0,"critical":0},{"name":"dependency_scanning","execution":"success","policy":"pass","required":true,"high":0,"critical":0}]}},{"id":"incident-3","record":{"title":"Lossless Markdown export","summary":"Separate read-only Duo reproduction and fix proposals; original Markdown whitespace and Unicode must survive export unchanged.","status":"PASS","issue_url":"https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/work_items/3","mr_url":"https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/merge_requests/5","source_sha":"44d562377bff699a66c6d75dab16030aec46b5a2","evidence_job":{"id":17264903669,"url":"https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/jobs/17264903669"},"scan_jobs":[{"name":"semgrep-sast","job_id":17264903660,"url":"https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/jobs/17264903660","execution":"success","findings":{"Critical":0,"High":0,"Medium":6,"Low":0,"Info":0,"Unknown":0}},{"name":"secret_detection","job_id":17264903661,"url":"https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/jobs/17264903661","execution":"success","findings":{"Critical":0,"High":0,"Medium":0,"Low":0,"Info":0,"Unknown":0}},{"name":"gemnasium-dependency_scanning","job_id":17264903662,"url":"https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/jobs/17264903662","execution":"success","findings":{"Critical":0,"High":0,"Medium":0,"Low":0,"Info":0,"Unknown":0}}],"sessions":[{"id":9650572,"role":"reproduce","url":"https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/automate/agent-sessions/9650572","catalog_version_id":1035253,"requested_tools":["read_file","list_dir"],"api_privilege_flags":["read_write_files","read_only_gitlab","read_write_gitlab","run_commands","use_git","run_mcp_tools","start_flows"],"status":"finished","observed_tools":["list_dir","read_file"]},{"id":9650610,"role":"fix","url":"https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/automate/agent-sessions/9650610","catalog_version_id":1035256,"requested_tools":["read_file","list_dir"],"api_privilege_flags":["read_write_files","read_only_gitlab","read_write_gitlab","run_commands","use_git","run_mcp_tools","start_flows"],"status":"finished","observed_tools":[]}],"metrics":{"incident_created_at":"2026-10-18T12:24:12.222Z","verified_fix_at":"2026-10-18T12:30:33.708Z","wall_clock_seconds":381.486,"duo_sessions":2,"pipeline_minutes":12.636,"human_touches":0,"human_touches_display":"0 fresh human clicks; 1 owner-authorized API approval","owner_authorized_approval_signals":1,"credit_usage":null,"credit_reason":"Per-session credit consumption was not exposed by the queried API; no estimate."},"scope":"recovery-ci; release_authorized=false","record_evaluated_at":"2026-10-18T12:30:31.418Z","tap_note":"Committed TAP replaces ephemeral isolated-worktree roots. Original TAP remains in linked CI artifacts.","approval":{"label":"Owner-authorized approval via API (Developer project role; not a fresh human click)","job_id":17264903670,"url":"https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/jobs/17264903670","source_sha":"44d562377bff699a66c6d75dab16030aec46b5a2","started_at":"2026-10-18T12:33:19.707Z","finished_at":"2026-10-18T12:33:35.306Z","merged_at":"2026-10-18T12:34:04.225Z","protected":false,"controller_merge_check":true},"red_pipeline_url":"https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/pipelines/2960231938","policy_sha":"87b4ce90f1838dc9cd0b6062bd1c428cd0f60661","test_commit":"1f9a5f607b5bad3873def584afb8a28968c4f15f","boundary_checks":[{"kind":"ci","url":"https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/pipelines/2960235835","job_url":"https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/jobs/17264914604","expected_status":"failed","reason":"Role path violation"},{"kind":"test","url":"https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/pipelines/2960235861","job_url":"https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/jobs/17264914928","expected_status":"failed","reason":"Role path violation"}]},"evidence":{"schema_version":2,"scope":"recovery-ci","policy_sha":"87b4ce90f1838dc9cd0b6062bd1c428cd0f60661","source_sha":"44d562377bff699a66c6d75dab16030aec46b5a2","base_sha":"a935170755da6e1ae50d532ff0886e14ef659413","pipeline":{"id":2960233931,"job_id":17264903669,"source_sha":"44d562377bff699a66c6d75dab16030aec46b5a2","url":"https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/pipelines/2960233931"},"pinned_test":{"path":"test/recovery/lossless-markdown-export.test.js","sha256":"9e2bd41760b90e8822188d8f4128063d262c80567296c9b38dd14ab41fc6076b"},"red":{"result":"fail","source_sha":"a935170755da6e1ae50d532ff0886e14ef659413","test_path":"test/recovery/lossless-markdown-export.test.js","test_sha256":"9e2bd41760b90e8822188d8f4128063d262c80567296c9b38dd14ab41fc6076b","executed_at":"2026-10-18T12:30:31.243Z","pipeline_id":2960233931,"job_id":17264903669},"green":{"result":"pass","source_sha":"44d562377bff699a66c6d75dab16030aec46b5a2","test_path":"test/recovery/lossless-markdown-export.test.js","test_sha256":"9e2bd41760b90e8822188d8f4128063d262c80567296c9b38dd14ab41fc6076b","executed_at":"2026-10-18T12:30:31.356Z","pipeline_id":2960233931,"job_id":17264903669},"scan":{"status":"pass","high":0,"critical":0,"scanners":[{"name":"sast","execution":"success","policy":"pass","required":true,"high":0,"critical":0},{"name":"secret_detection","execution":"success","policy":"pass","required":true,"high":0,"critical":0},{"name":"dependency_scanning","execution":"success","policy":"pass","required":true,"high":0,"critical":0}],"source_sha":"44d562377bff699a66c6d75dab16030aec46b5a2","pipeline_id":2960233931,"job_id":17264903669,"completed_at":"2026-10-18T12:30:31.418Z"},"duo":{"session_id":"9650572","url":"https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/-/automate/agent-sessions/9650572"},"created_at":"2026-10-18T12:30:31.418Z"},"verdict":{"status":"PASS","scope":"recovery-ci","release_authorized":false,"errors":[]},"scan":{"status":"pass","high":0,"critical":0,"scanners":[{"name":"sast","execution":"success","policy":"pass","required":true,"high":0,"critical":0},{"name":"secret_detection","execution":"success","policy":"pass","required":true,"high":0,"critical":0},{"name":"dependency_scanning","execution":"success","policy":"pass","required":true,"high":0,"critical":0}]}}];
+/* Shared, read-only view model. Every value comes from the embedded records; nothing is estimated. */
+const VR = (function (rows) {
+  const PROJECT = 'https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/';
+  const ok = u => (typeof u === 'string' && u.startsWith(PROJECT) ? u : null);
+  const tail = (u, key) => { const m = typeof u === 'string' && u.match(new RegExp('/' + key + '/(\\d+)')); return m ? m[1] : null; };
+  const short = s => (s ? s.slice(0, 8) : null);
+  const clock = iso => (iso ? iso.slice(11, 19) : null);
+  const day = iso => (iso ? iso.slice(0, 10) : null);
+  const dur = sec => { if (sec == null) return null; const t = Math.round(sec); return Math.floor(t / 60) + 'm ' + String(t % 60).padStart(2, '0') + 's'; };
+  const SCAN_LABEL = { 'semgrep-sast': 'SAST', 'secret_detection': 'Secret Detection', 'gemnasium-dependency_scanning': 'Dependency Scanning' };
+  const BOUNDARY_LABEL = { ci: 'CI config edit', test: 'Pinned test edit' };
+
+  const incidents = rows.map(row => {
+    const r = row.record || {}, e = row.evidence || {}, v = row.verdict || {}, m = r.metrics || {}, ap = r.approval || {};
+    const num = tail(r.issue_url, 'work_items') || row.id.replace('incident-', '');
+    const sessions = (r.sessions || []).map(s => {
+      const note = (s.role.match(/\((.*)\)/) || [])[1] || null;
+      const combined = /combined/.test(s.role);
+      return { id: s.id, url: ok(s.url), role: s.role, kind: combined ? 'combined' : s.role.split(' ')[0], note, combined,
+        rejected: /^rejected/.test(note || ''), requested: s.requested_tools || null, observed: s.observed_tools || [],
+        flags: s.api_privilege_flags || null, status: s.status };
+    });
+    const historical = sessions.some(s => s.combined);
+    const repro = sessions.filter(s => s.kind === 'reproduce');
+    const reproAccepted = repro.filter(s => !s.rejected).slice(-1)[0] || sessions.find(s => s.combined) || null;
+    const fix = sessions.find(s => s.kind === 'fix') || sessions.find(s => s.combined) || null;
+    const pin = e.pinned_test || {}, red = e.red || {}, green = e.green || {};
+    const sameTest = !!pin.sha256 && red.test_sha256 === pin.sha256 && green.test_sha256 === pin.sha256 && red.test_path === pin.path && green.test_path === pin.path;
+    const scans = (r.scan_jobs || []).map(j => ({ name: j.name, label: SCAN_LABEL[j.name] || j.name, url: ok(j.url), jobId: j.job_id, execution: j.execution, findings: j.findings || {} }));
+    const sum = k => scans.reduce((a, j) => a + (j.findings[k] || 0), 0);
+    const policy = (row.scan && row.scan.scanners) || [];
+    const pipelineId = e.pipeline && e.pipeline.id;
+
+    const rejections = [];
+    sessions.filter(s => s.rejected).forEach(s => rejections.push({ stage: 'reproduce', gate: 'Controller review', title: 'Test proposal rejected', chip: 'Proposal rejected', retry: true,
+      short: 'Hanging test', detail: 'The proposed test hung during the local check (' + s.note + '). A new reproduce session was started.',
+      url: s.url, linkLabel: 'Session ' + s.id }));
+    (r.blocked_attempts || []).forEach(b => rejections.push({ stage: 'scans', gate: 'Security scan policy', title: 'MR !' + tail(b.mr, 'merge_requests') + ' blocked', chip: 'MR !' + tail(b.mr, 'merge_requests') + ' blocked', retry: true,
+      short: '1 High SAST finding', detail: b.reason, url: ok(b.pipeline), linkLabel: 'Pipeline ' + tail(b.pipeline, 'pipelines'),
+      url2: ok(b.mr), link2Label: 'MR !' + tail(b.mr, 'merge_requests') }));
+    if (r.tamper_pipeline_url) rejections.push({ stage: 'green', gate: 'CI role boundary', title: 'Policy file edit rejected', chip: 'Policy edit rejected', retry: false,
+      short: 'Tamper check', detail: 'Tamper check pipeline failed as expected; the change stayed unmerged.', url: ok(r.tamper_pipeline_url),
+      linkLabel: 'Pipeline ' + tail(r.tamper_pipeline_url, 'pipelines') });
+    (r.boundary_checks || []).forEach(c => rejections.push({ stage: 'green', gate: 'CI role boundary', title: (BOUNDARY_LABEL[c.kind] || c.kind) + ' rejected', chip: ({ ci: 'CI edit', test: 'Test edit' }[c.kind] || c.kind) + ' rejected', retry: false,
+      short: c.reason, detail: c.reason + '; pipeline expected to fail and did (' + c.expected_status + ').', url: ok(c.url),
+      linkLabel: 'Pipeline ' + tail(c.url, 'pipelines'), url2: ok(c.job_url), link2Label: 'Job ' + tail(c.job_url, 'jobs') }));
+
+    const stages = [
+      { key: 'incident', label: 'Incident', state: 'done', title: 'Issue #' + num, sub: 'opened ' + clock(m.incident_created_at) + ' UTC', url: ok(r.issue_url) },
+      { key: 'reproduce', label: 'Reproduce · red', state: historical ? 'warn' : 'done',
+        title: historical ? 'Combined session' : 'Session ' + (reproAccepted && reproAccepted.id),
+        sub: (red.result === 'fail' ? 'test fails' : String(red.result)) + ' on ' + short(red.source_sha), url: reproAccepted && reproAccepted.url,
+        extra: r.red_pipeline_url ? { label: 'Red pipeline ' + tail(r.red_pipeline_url, 'pipelines'), url: ok(r.red_pipeline_url) } : null },
+      { key: 'fix', label: 'Fix', state: historical ? 'warn' : 'done',
+        title: historical ? 'Same session' : 'Session ' + (fix && fix.id), sub: historical ? 'no role isolation' : 'separate read-only session', url: fix && fix.url },
+      { key: 'green', label: 'Green · same test', state: green.result === 'pass' && sameTest ? 'done' : 'fail',
+        title: (green.result === 'pass' ? 'passes' : String(green.result)) + ' on ' + short(green.source_sha), sub: sameTest ? 'SHA-256 identical' : 'SHA-256 mismatch',
+        url: ok(e.pipeline && e.pipeline.url), extra: r.evidence_job ? { label: 'Red/green job ' + r.evidence_job.id, url: ok(r.evidence_job.url) } : null },
+      { key: 'scans', label: 'Scans', state: (row.scan && row.scan.status) === 'pass' ? 'done' : 'fail',
+        title: sum('High') + ' High · ' + sum('Critical') + ' Critical', sub: sum('Medium') + ' Medium, not blocking', url: scans[0] && scans[0].url },
+      historical
+        ? { key: 'approval', label: 'Approval', state: 'na', title: 'Not enforced', sub: 'milestone 2 record', url: null }
+        : { key: 'approval', label: 'Approval', state: 'done', title: 'Owner-authorized', sub: 'API signal ' + clock(ap.finished_at) + ' UTC', url: ok(ap.url) },
+      { key: 'merged', label: 'Merged', state: 'done', title: 'MR !' + tail(r.mr_url, 'merge_requests'), sub: ap.merged_at ? clock(ap.merged_at) + ' UTC' : 'time not recorded', url: ok(r.mr_url) }
+    ];
+    stages.forEach(s => { s.rejections = rejections.filter(x => x.stage === s.key); });
+
+    return {
+      id: row.id, num, title: r.title, summary: r.summary, verdict: v.status || r.status || 'INCOMPLETE',
+      releaseAuthorized: v.release_authorized, scope: v.scope || e.scope, historical, sessions, reproAccepted, fix, stages, rejections,
+      issueUrl: ok(r.issue_url), mrUrl: ok(r.mr_url), mrIid: tail(r.mr_url, 'merge_requests'),
+      pipelineUrl: ok(e.pipeline && e.pipeline.url), pipelineId, evidenceJob: r.evidence_job ? { id: r.evidence_job.id, url: ok(r.evidence_job.url) } : null,
+      redPipelineUrl: ok(r.red_pipeline_url), redPipelineId: tail(r.red_pipeline_url, 'pipelines'), testCommit: r.test_commit || null,
+      pin, red, green, sameTest, scans, policy, high: sum('High'), critical: sum('Critical'), medium: sum('Medium'),
+      approval: { label: ap.label || 'Not recorded', url: ok(ap.url), jobId: ap.job_id || null, started: ap.started_at || null, finished: ap.finished_at || null,
+        merged: ap.merged_at || null, protected: ap.protected, controllerCheck: ap.controller_merge_check },
+      metrics: { createdAt: m.incident_created_at, fixedAt: m.verified_fix_at, seconds: m.wall_clock_seconds, duration: dur(m.wall_clock_seconds),
+        duo: m.duo_sessions, pipelineMinutes: m.pipeline_minutes, humanTouches: m.human_touches,
+        humanDisplay: m.human_touches == null ? 'Not measured' : m.human_touches_display, approvals: m.owner_authorized_approval_signals,
+        credits: m.credit_usage == null ? 'Not measured' : m.credit_usage, creditReason: m.credit_reason },
+      baseSha: e.base_sha, sourceSha: e.source_sha, policySha: e.policy_sha || r.policy_sha, evaluatedAt: r.record_evaluated_at,
+      mergeNote: r.merge_metadata_note || null, tapNote: r.tap_note || null
+      , blockedReasons: (r.blocked_attempts || []).map(b => ({ mrIid: tail(b.mr, 'merge_requests'), mr: ok(b.mr), pipeline: ok(b.pipeline), pipelineId: tail(b.pipeline, 'pipelines'), reason: b.reason }))
+    };
+  });
+
+  const all = incidents.flatMap(i => i.rejections.map(x => Object.assign({ incident: i }, x)));
+  const totals = {
+    count: incidents.length,
+    pass: incidents.filter(i => i.verdict === 'PASS').length,
+    sameTest: incidents.filter(i => i.sameTest && i.red.result === 'fail' && i.green.result === 'pass').length,
+    rejections: all.length, allRejections: all,
+    rejectedProposals: all.filter(x => x.stage === 'reproduce').length,
+    blockedMrs: all.filter(x => x.stage === 'scans').length,
+    boundary: all.filter(x => x.stage === 'green').length,
+    highCritical: incidents.reduce((a, i) => a + i.high + i.critical, 0),
+    duo: incidents.reduce((a, i) => a + (i.metrics.duo || 0), 0),
+    releaseAuthorized: incidents.some(i => i.releaseAuthorized === true),
+    isolated: incidents.filter(i => !i.historical).length,
+    snapshot: incidents.map(i => i.evaluatedAt).filter(Boolean).sort().slice(-1)[0] || null
+  };
+  return { incidents, totals, PROJECT, short, clock, day, dur };
+})(RAW_ROWS);
+
+function h(tag, attrs, ...kids) {
+  const n = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs || {})) {
+    if (v == null || v === false) continue;
+    if (k === 'class') n.className = v; else if (k === 'text') n.textContent = v; else n.setAttribute(k, v === true ? '' : v);
+  }
+  for (const k of kids.flat(Infinity)) if (k != null && k !== false) n.append(k instanceof Node ? k : document.createTextNode(String(k)));
+  return n;
+}
+function ext(label, url, cls) {
+  if (!url) return h('span', { class: ((cls || '') + ' nolink').trim() }, label);
+  return h('a', { href: url, target: '_blank', rel: 'noopener noreferrer', class: cls || null }, label);
+}
+
+
+const T = VR.totals, I = VR.incidents, NM = 'Not measured';
+const RAWBY = Object.fromEntries(RAW_ROWS.map(r => [r.id, r]));
+const svgEl = s => { const t = document.createElement('template'); t.innerHTML = s.trim(); return t.content.firstChild; };
+const ICON_LINK = '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M4.5 2.5h5v5M9.5 2.5L3 9" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const ICON_CHEV = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3.5l4.5 4.5L6 12.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+/* Short form: hex hashes keep the first 7 characters; long numeric ids keep the last 7 digits, because ids in one project share a prefix. */
+function shortOf(v) {
+  const s = String(v);
+  if (/^[0-9a-f]{12,}$/.test(s)) return s.slice(0, 7);
+  if (/^\d+$/.test(s) && s.length > 7) return '…' + s.slice(-7);
+  return s;
+}
+function idref(kind, value, url, showKind) {
+  if (value == null || value === '') return null;
+  const full = String(value);
+  const chip = h('button', { type: 'button', class: 'chip', 'data-full': full, 'data-kind': kind, title: kind + ' ' + full + ' · click to copy', 'aria-label': 'Copy ' + kind + ' ' + full }, h('span', { class: 's' }, shortOf(full)));
+  const link = url ? h('a', { class: 'lk', href: url, target: '_blank', rel: 'noopener noreferrer', title: 'Open ' + kind.toLowerCase() + ' in GitLab', 'aria-label': 'Open ' + kind.toLowerCase() + ' ' + full + ' in GitLab' }, svgEl(ICON_LINK)) : null;
+  return h('span', { class: 'idref' }, showKind === false ? null : h('span', { class: 'kind' }, kind), chip, link);
+}
+const toast = document.getElementById('toast');
+let toastTimer;
+function showToast(kind, full) {
+  toast.replaceChildren('Copied ' + kind.toLowerCase(), h('code', {}, full.length > 20 ? full.slice(0, 12) + '…' + full.slice(-6) : full));
+  toast.classList.add('on'); clearTimeout(toastTimer); toastTimer = setTimeout(() => toast.classList.remove('on'), 1400);
+}
+function fallbackCopy(text) {
+  const ta = h('textarea', { 'aria-hidden': 'true', style: 'position:fixed;left:-9999px;top:0' }); ta.value = text; document.body.append(ta); ta.select();
+  try { document.execCommand('copy'); } catch (e) {} ta.remove();
+}
+document.addEventListener('click', e => {
+  const c = e.target.closest('.chip'); if (!c) return;
+  e.stopPropagation();
+  const full = c.dataset.full;
+  const done = () => { showToast(c.dataset.kind, full); c.classList.add('copied'); setTimeout(() => c.classList.remove('copied'), 900); };
+  if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(full).then(done, () => { fallbackCopy(full); done(); });
+  else { fallbackCopy(full); done(); }
+}, true);
+
+/* L1 */
+const all = T.pass === T.count;
+document.getElementById('verdict').append(
+  h('span', { class: 'ok' }, (all ? 'All ' + T.count : T.pass + ' of ' + T.count) + ' recoveries pass'),
+  ': the same pinned test went from red to green every time, and ',
+  T.highCritical === 0 && T.rejections > 0 ? h('span', { class: 'no' }, 'every bad change was stopped') : 'the gates were evaluated', ' before merge.');
+const keys = document.getElementById('keys');
+const key = (n, t, d, cls) => keys.append(h('div', { class: 'key ' + (cls || '') }, h('div', { class: 'n' }, n), h('div', { class: 't' }, t), h('div', { class: 'd' }, d)));
+key(h('span', {}, String(T.pass), h('small', {}, ' / ' + T.count)), 'Records pass', T.isolated + ' with separate reproduce and fix sessions; 1 historical record.', 'ok');
+key(h('span', {}, String(T.sameTest), h('small', {}, ' / ' + T.count)), 'Same test, red then green', 'Identical test path and SHA-256 on the failing and the passing run.');
+const realStops = T.rejectedProposals + T.blockedMrs;
+key(h('span', {}, String(realStops), h('small', {}, ' + ' + T.boundary)), 'Bad changes stopped before merge',
+  realStops + ' real (' + T.rejectedProposals + ' hanging test, ' + T.blockedMrs + ' High SAST block) + ' + T.boundary + ' deliberate boundary tests.³', 'no');
+key(String(T.highCritical), 'High or Critical merged', 'SAST, Secret Detection and Dependency Scanning ran on every fix.');
+const ev = T.snapshot ? T.snapshot.slice(0, 16).replace('T', ' ') + ' UTC' : NM;
+document.getElementById('meta').append(
+  h('span', {}, 'Scope ', h('b', {}, I[0].scope)), h('span', {}, 'Release authorized ', h('b', {}, String(T.releaseAuthorized)), h('sup', {}, '⁴')),
+  h('span', {}, 'Latest evaluation ', h('b', {}, ev)), h('span', {}, 'Times in UTC'));
+
+/* L3 helpers */
+function chain(i) {
+  const raw = RAWBY[i.id] || {};
+  const steps = [];
+  const add = (cls, time, cp, ev, refs, res) => steps.push({ cls, time, cp, ev, refs: (refs || []).filter(Boolean), res });
+  const R = k => i.rejections.filter(x => x.stage === k);
+  const t = iso => (iso ? VR.clock(iso).slice(0, 5) : null);
+  add('', t(i.metrics.createdAt), 'Incident opened', i.title + '.', [ext('Issue #' + i.num, i.issueUrl)], ['', 'Opened']);
+  if (i.historical) {
+    const s = i.sessions[0];
+    add('', null, 'Reproduce and fix in one session', 'One Duo session wrote both the test and the fix; role isolation was not enforced.¹', [idref('Session', s.id, s.url)], ['', 'Historical']);
+  } else {
+    R('reproduce').forEach(x => add('bad', null, 'Reproduce proposal rejected', x.detail, [idref('Session', x.url && x.url.split('/').pop(), x.url)], ['bad', 'Rejected']));
+    const rs = i.reproAccepted;
+    add('ok', null, 'Reproduce', 'Read-only session proposed the failing test; the controller pinned and committed it.', [idref('Session', rs.id, rs.url), idref('Test commit', i.testCommit), i.redPipelineUrl ? idref('Red pipeline', i.redPipelineId, i.redPipelineUrl) : null], ['ok', 'Accepted']);
+    add('ok', null, 'Fix', 'A separate read-only session proposed the source fix.', [idref('Session', i.fix.id, i.fix.url)], ['', 'Proposed']);
+  }
+  R('scans').forEach(x => add('bad', null, x.title, x.detail, [idref('Pipeline', (x.url || '').split('/').pop(), x.url), ext(x.link2Label, x.url2)], ['bad', 'Blocked']));
+  R('green').forEach(x => add('bad', null, x.title + '³', x.detail, [idref('Pipeline', (x.url || '').split('/').pop(), x.url), x.url2 ? idref('Job', x.url2.split('/').pop(), x.url2) : null], ['bad', 'Rejected']));
+  add('ok', t(i.red.executed_at), 'Red run', 'Pinned test on the incident commit: ' + i.red.result + '.', [idref('Commit', i.red.source_sha), idref('Job', i.red.job_id, i.evidenceJob && i.evidenceJob.url)], i.red.result === 'fail' ? ['ok', 'Fails as expected'] : ['bad', 'No red']);
+  add('ok', t(i.green.executed_at), 'Green run', 'Same test on the fix: ' + i.green.result + '; SHA-256 ' + (i.sameTest ? 'identical.' : 'differs.'), [idref('Commit', i.green.source_sha), idref('Pipeline', i.pipelineId, i.pipelineUrl)], i.green.result === 'pass' && i.sameTest ? ['ok', 'Pass'] : ['bad', 'Fail']);
+  add('ok', t(raw.evidence && raw.evidence.scan && raw.evidence.scan.completed_at), 'Security scans', i.high + ' High, ' + i.critical + ' Critical, ' + i.medium + ' Medium. Medium does not block.', [], i.high + i.critical === 0 ? ['ok', 'Pass'] : ['bad', 'Block']);
+  if (i.historical) add('', null, 'Approval', 'Not enforced in milestone 2.¹', [], ['', 'Not enforced']);
+  else add('ok', t(i.approval.finished), 'Approval', 'Owner-authorized API approval.²', [idref('Job', i.approval.jobId, i.approval.url)], ['ok', 'Approved']);
+  add('ok', t(i.approval.merged), 'Merged', i.approval.merged ? 'Verified fix merged.' : 'Merged; the record has no merge time.', [ext('MR !' + i.mrIid, i.mrUrl)], ['ok', 'Merged']);
+
+  const ol = h('ol', { class: 'chain' });
+  steps.forEach(s => ol.append(h('li', { class: 'step ' + s.cls }, h('span', { class: 'dot' }), h('span', { class: 'when' }, s.time || ''),
+    h('div', {}, h('div', { class: 'cp' }, s.cp), h('div', { class: 'ev' }, s.ev), s.refs.length ? h('div', { class: 'refs' }, s.refs) : null),
+    h('span', { class: 'res ' + s.res[0] }, s.res[1]))));
+  return h('div', {}, h('div', { class: 'sub' }, 'Evidence chain'), ol);
+}
+function aside(i) {
+  const a = h('aside');
+  const kv = (title, pairs) => { const d = h('dl', { class: 'kv' }); pairs.filter(Boolean).forEach(([k, v, cls]) => d.append(h('dt', {}, k), h('dd', { class: cls || null }, v))); a.append(h('div', { class: 'blk' }, h('div', { class: 'sub' }, title), d)); };
+  const pathEl = h('span', { class: 'path', title: i.pin.path }); i.pin.path.split('/').forEach((p, k, arr) => { pathEl.append(p + (k < arr.length - 1 ? '/' : '')); if (k < arr.length - 1) pathEl.append(h('wbr')); });
+  kv('Pinned test', [['Path', pathEl], ['SHA-256', h('span', {}, idref('SHA-256', i.pin.sha256, null, false), '  ', h('span', { class: i.sameTest ? 'same' : 'rej has' }, i.sameTest ? 'identical on red and green' : 'differs between runs'))]]);
+  kv('Commits', [['Incident base', idref('Base commit', i.baseSha, null, false)], ['Fix candidate', idref('Fix commit', i.sourceSha, null, false)],
+    i.testCommit ? ['Test commit', idref('Test commit', i.testCommit, null, false)] : null, ['Policy', idref('Policy commit', i.policySha, null, false)]]);
+  const tb = h('table', { class: 'scan' }, h('tr', {}, h('th', {}, 'Scanner'), h('th', {}, 'Crit'), h('th', {}, 'High'), h('th', {}, 'Med'), h('th', {}, 'Low'), h('th', {}, 'Job')));
+  const cell = (v, hot) => h('td', { class: v ? (hot ? 'hot' : '') : 'z' }, String(v));
+  i.scans.forEach(j => tb.append(h('tr', {}, h('td', {}, j.label), cell(j.findings.Critical, true), cell(j.findings.High, true), cell(j.findings.Medium), cell(j.findings.Low), h('td', {}, idref('Job', j.jobId, j.url, false)))));
+  a.append(h('div', { class: 'blk' }, h('div', { class: 'sub' }, 'Scan reports'), tb));
+  const m = i.metrics, val = v => (v == null || v === NM ? [NM, 'nm'] : [String(v)]);
+  kv('Measurements', [['Wall clock', ...val(m.seconds == null ? null : m.seconds + ' s')], ['Duo sessions', ...val(m.duo)], ['Pipeline job min', ...val(m.pipelineMinutes)],
+    ['Fresh human clicks', ...val(m.humanTouches)], ['Owner approvals', ...val(m.approvals)], ['Credits', ...val(m.credits === NM ? null : m.credits)]]);
+  return a;
+}
+
+/* L2 */
+const recs = document.getElementById('records');
+I.forEach(i => {
+  const id = 'l3-' + i.id;
+  const rec = h('div', { class: 'rec', id: i.id });
+  const tog = h('button', { type: 'button', class: 'tog', 'aria-expanded': 'false', 'aria-controls': id, 'aria-label': 'Show evidence for ' + i.title }, svgEl(ICON_CHEV));
+  const real = i.rejections.filter(x => x.retry).length, delib = i.rejections.length - real;
+  const stopped = real || delib
+    ? [real ? h('span', { class: 'real' }, real + ' real') : null, real && delib ? h('span', { class: 'delib' }, ' + ') : null,
+       delib ? h('span', { class: 'delib' }, delib + (real ? ' test' : ' boundary test') + (delib > 1 ? 's' : '')) : null, delib ? h('sup', { class: 'fn' }, '3') : null]
+    : 'None';
+  const row = h('div', { class: 'grid row' },
+    tog, h('span', { class: 'ref' }, 'VR-' + i.num),
+    h('div', { class: 'name' }, ext(i.title, i.issueUrl), i.historical ? h('sup', { class: 'fn' }, '1') : null),
+    h('div', {}, h('span', { class: 'stamp ' + i.verdict }, i.verdict)),
+    h('div', { class: 'ctl' }, i.historical
+      ? [h('span', { class: 'm' }, 'Single session · approval not enforced'), h('sup', { class: 'fn' }, '1')]
+      : ['Separate sessions', h('span', { class: 'm' }, ' · '), 'owner API approval', h('sup', { class: 'fn' }, '2')]),
+    h('div', { class: 'rej', title: i.rejections.map(x => x.title).join('; ') || 'No rejected changes' }, stopped),
+    h('div', { class: 'dur', title: i.metrics.seconds == null ? NM : i.metrics.seconds + ' seconds, incident created to verified fix' }, i.metrics.duration || NM));
+  const l3 = h('div', { class: 'l3', id, hidden: true }, chain(i), aside(i));
+  const set = open => { l3.hidden = !open; rec.classList.toggle('open', open); tog.setAttribute('aria-expanded', String(open)); };
+  row.addEventListener('click', e => { if (e.target.closest('a,.chip')) return; set(l3.hidden); });
+  rec._set = set;
+  rec.append(row, l3);
+  recs.append(rec);
+});
+const setAll = open => document.querySelectorAll('.rec').forEach(r => r._set(open));
+document.getElementById('ex').onclick = () => setAll(true);
+document.getElementById('co').onclick = () => setAll(false);
+document.getElementById('pr').onclick = () => window.print();
+window.addEventListener('beforeprint', () => setAll(true));
+function fromHash() {
+  const hsh = location.hash.slice(1);
+  if (hsh === 'all') setAll(true);
+  else if (hsh.startsWith('open=')) hsh.slice(5).split(',').forEach(id => { const r = document.getElementById(id); if (r && r._set) r._set(true); });
+  else { const r = document.getElementById(hsh); if (r && r._set) r._set(true); }
+}
+fromHash(); window.addEventListener('hashchange', fromHash);
+
+/* Notes */
+const hist = I.find(i => i.historical), owner = I.find(i => !i.historical);
+document.getElementById('notes').append(
+  hist ? h('p', {}, h('sup', {}, '1 '), h('b', {}, 'Historical record. '), 'VR-' + hist.num + ' is a milestone 2 recovery. One Duo session wrote both the test and the fix, approval was not enforced, and human touches were not measured. Its PASS covers the red/green test and the scans only.') : null,
+  owner ? h('p', {}, h('sup', {}, '2 '), h('b', {}, 'Owner API approval. '), owner.approval.label + '. It is not a protected job.') : null,
+  h('p', {}, h('sup', {}, '3 '), h('b', {}, 'Deliberate boundary checks. '), 'The policy, CI and test edits were planted on purpose to prove the CI role boundary. Their pipelines failed as expected and nothing was merged.'),
+  h('p', {}, h('sup', {}, '4 '), h('b', {}, 'Scope. '), 'Verdicts cover recovery CI only. Release authorized is false for every record; no deployment is claimed.'),
+  h('p', {}, h('b', {}, 'Scan policy. '), 'High or Critical findings, and missing or failed required scans, block a record. Medium findings stay visible.'),
+  h('p', {}, h('b', {}, 'Measurements. '), 'Pipeline job minutes are runner time, not billed cost. Credits: ' + NM.toLowerCase() + '; ' + I[0].metrics.creditReason.replace(/^./, c => c.toLowerCase())),
+  h('p', {}, h('b', {}, 'Identifiers. '), 'Commits and hashes show their first 7 characters; pipeline, job and session numbers show their last 7 digits. Click any chip to copy the full value; the arrow opens it in GitLab.'));
+</script>
+</body>
+</html>
+
