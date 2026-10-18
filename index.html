@@ -193,7 +193,18 @@ const RAW_ROWS = [{"id":"incident-1","record":{"title":"Newline word count","sum
 const VR = (function (rows) {
   const PROJECT = 'https://gitlab.com/gitlab-ai-hackathon/transcend-october-2026/43457157/verified-recovery/';
   const ok = u => (typeof u === 'string' && u.startsWith(PROJECT) ? u : null);
-  const tail = (u, key) => { const m = typeof u === 'string' && u.match(new RegExp('/' + key + '/(\\d+)')); return m ? m[1] : null; };
+  // Digits after the first "/<key>/" segment that is followed by at least one digit.
+  const tail = (u, key) => {
+    if (typeof u !== 'string') return null;
+    const seg = '/' + key + '/';
+    for (let at = u.indexOf(seg); at !== -1; at = u.indexOf(seg, at + 1)) {
+      const from = at + seg.length;
+      let end = from;
+      while (end < u.length && u[end] >= '0' && u[end] <= '9') end += 1;
+      if (end > from) return u.slice(from, end);
+    }
+    return null;
+  };
   const short = s => (s ? s.slice(0, 8) : null);
   const clock = iso => (iso ? iso.slice(11, 19) : null);
   const day = iso => (iso ? iso.slice(0, 10) : null);
